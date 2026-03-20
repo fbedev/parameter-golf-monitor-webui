@@ -64,6 +64,29 @@ Before adding a technique, verify:
 4. **Can AIDE2 implement it?** — Must fit in a single optimize.py file
 5. **Is it novel vs existing PRs?** — Check the leaderboard first
 
+## TO-EXPLORE: Recent Papers (2024-2026, unvalidated)
+
+**IMPORTANT:** Leaderboard-proven techniques (11L, WD=0.04, BigramHash, SmearGate, SWA) should always take priority over paper techniques. These papers are for exploration when proven approaches plateau.
+
+### BitNet / Extreme Low-Bit
+| Paper | Technique | Caution |
+|-------|-----------|---------|
+| [BitNet b1.58](https://arxiv.org/abs/2402.17764) | Ternary weights {-1,0,1} | Competition BitNet PRs scored poorly (1.20+). 600s may be too short. |
+| [BitNet Reloaded](https://arxiv.org/abs/2407.09527) | BitNet for small models | Validates small scale but untested in our setting |
+| [PV-Tuning](https://arxiv.org/abs/2405.14852) | 1-2 bits per param | Extreme compression, unvalidated at 600s training |
+
+### Rate-Distortion / Compression-Aware
+| Paper | Technique | Relevance |
+|-------|-----------|-----------|
+| [BackSlash](https://arxiv.org/abs/2504.16968) | Train under bit budget constraint | Directly relevant — optimize for 16MB during training |
+| [Radio](https://arxiv.org/abs/2505.03031) | Per-layer precision decisions | Could guide int5 vs int6 routing |
+
+### Architecture / Signal Flow
+| Paper | Technique | Relevance |
+|-------|-----------|-----------|
+| [Attention Residuals (2026)](https://arxiv.org/abs/2603.15031) | Optimized residual connections | Deeper nets without hidden-state growth |
+| [Super Tiny LMs](https://arxiv.org/abs/2405.14159) | Tiny model training strategies | Directly about our scale |
+
 ## Search Strategy
 
 When looking for new techniques, search for:
