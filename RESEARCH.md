@@ -81,10 +81,21 @@ Before adding a technique, verify:
 | [BackSlash](https://arxiv.org/abs/2504.16968) | Train under bit budget constraint | Directly relevant — optimize for 16MB during training |
 | [Radio](https://arxiv.org/abs/2505.03031) | Per-layer precision decisions | Could guide int5 vs int6 routing |
 
+### Depth Recurrence / Weight Tying
+| Paper | Technique | Relevance |
+|-------|-----------|-----------|
+| [Universal Transformers](https://arxiv.org/abs/1807.03819) | Same block applied repeatedly | Virtual depth at 1 layer's cost. Needs level signals. |
+| [RingFormer](https://arxiv.org/abs/2502.13181) | Shared blocks + LoRA level signals | Modern take on weight tying. 20% params matches vanilla. |
+| [Attention Residuals (2026)](https://arxiv.org/abs/2603.15031) | Optimized residual connections | Critical for stable deep recurrence |
+
+### Test-Time Training
+| Paper | Technique | Relevance |
+|-------|-----------|-----------|
+| [TTT Layers](https://arxiv.org/abs/2407.04153) | GD-updated weights during forward pass | Drop-in attention replacement. PR #77 showed +0.003 bpb. |
+
 ### Architecture / Signal Flow
 | Paper | Technique | Relevance |
 |-------|-----------|-----------|
-| [Attention Residuals (2026)](https://arxiv.org/abs/2603.15031) | Optimized residual connections | Deeper nets without hidden-state growth |
 | [Super Tiny LMs](https://arxiv.org/abs/2405.14159) | Tiny model training strategies | Directly about our scale |
 
 ## Search Strategy
