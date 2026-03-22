@@ -40,12 +40,15 @@ The Web UI supports:
 This repo is Railway-ready:
 - `Procfile` defines the start command: `python3 scripts/webui.py`
 - `scripts/webui.py` reads Railway's `PORT` environment variable
+- `Dockerfile` is included as a fallback for deterministic Railway builds
 
 Steps:
 1. Push this repo to GitHub.
 2. In Railway, create a new project from the repo.
-3. Deploy (Railway will run the `web` process from `Procfile`).
+3. Deploy.
 4. Open the generated Railway URL.
+
+If Railway auto-detection fails (`Railpack could not determine how to build the app`), trigger a new deploy after pushing `Dockerfile`; Railway will build via Docker and skip language detection.
 
 ## Options
 

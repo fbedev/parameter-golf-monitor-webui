@@ -36,6 +36,11 @@
     - start command `python3 scripts/webui.py`
 - `runtime.txt`
   - Pins Python runtime family (`python-3.12`) for hosting compatibility.
+- `Dockerfile`
+  - Deterministic Railway deploy path using container build.
+  - Starts service with `python3 scripts/webui.py`.
+- `.dockerignore`
+  - Reduces build context noise for Docker-based deployment.
 - `web/index.html`
   - Semantic single-page app shell.
   - Hero, query controls, stats section, leaderboard table.
@@ -62,3 +67,4 @@
 - 2026-03-22: Created and pushed a new GitHub repository `fbedev/parameter-golf-monitor-webui` and added it as git remote `new-origin`.
 - 2026-03-22: Attempted Railway CLI deployment from this environment; blocked by non-interactive auth (`railway login` requires interactive session).
 - 2026-03-22: Added explicit Railway deployment hardening (`nixpacks.toml`, `runtime.txt`) after a user-reported deploy failure.
+- 2026-03-22: Added Docker-based Railway fallback (`Dockerfile`, `.dockerignore`) after Railpack language detection failure in production logs.
