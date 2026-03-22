@@ -20,6 +20,33 @@ python3 scripts/monitor.py --top 10 --records-only
 python3 scripts/monitor.py --watch 5 --me <your-github-username>
 ```
 
+## Web UI
+
+```bash
+python3 scripts/webui.py
+```
+
+Then open [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+The Web UI supports:
+- open / merged / open+merged mode
+- records-only and include-suspect filters
+- top-N filtering
+- since-date filtering
+- highlighting your GitHub username with rank and gap context
+
+### Deploy on Railway
+
+This repo is Railway-ready:
+- `Procfile` defines the start command: `python3 scripts/webui.py`
+- `scripts/webui.py` reads Railway's `PORT` environment variable
+
+Steps:
+1. Push this repo to GitHub.
+2. In Railway, create a new project from the repo.
+3. Deploy (Railway will run the `web` process from `Procfile`).
+4. Open the generated Railway URL.
+
 ## Options
 
 | Flag | Description |

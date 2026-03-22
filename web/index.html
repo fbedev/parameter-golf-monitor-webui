@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parameter Golf Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Playfair+Display:wght@600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to leaderboard</a>
+
+    <header class="hero section-rule-bottom">
+      <div class="container">
+        <p class="eyebrow">OpenAI Parameter Golf</p>
+        <h1>Monitor The Record</h1>
+        <p class="hero-copy">Leaderboard tracking for open and merged submissions.</p>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="controls section-rule-bottom">
+        <div class="container grid-2">
+          <div>
+            <h2>Filters</h2>
+            <p class="lead">Adjust scope and refresh.</p>
+          </div>
+          <form id="controls-form" class="control-form" autocomplete="off">
+            <label>
+              Mode
+              <select name="mode">
+                <option value="open">Open</option>
+                <option value="merged">Merged</option>
+                <option value="all">Open + Merged</option>
+              </select>
+            </label>
+            <label>
+              GitHub Username
+              <input name="me" type="text" placeholder="dexhunter" />
+            </label>
+            <label>
+              Top N
+              <input name="top" type="number" min="1" max="100" placeholder="10" />
+            </label>
+            <label>
+              Since Date
+              <input name="since" type="date" />
+            </label>
+            <label class="checkbox-line">
+              <input name="records_only" type="checkbox" />
+              <span>Records Only</span>
+            </label>
+            <label class="checkbox-line">
+              <input name="include_suspect" type="checkbox" />
+              <span>Include Suspect</span>
+            </label>
+            <button type="submit" class="btn-primary">Refresh</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="stats section-rule-bottom" aria-live="polite">
+        <div class="container">
+          <div class="stats-head">
+            <h2>Snapshot</h2>
+            <p id="generated-at" class="mono">Awaiting query...</p>
+          </div>
+          <div class="stats-grid" id="stats-grid"></div>
+        </div>
+      </section>
+
+      <section class="leaderboard">
+        <div class="container">
+          <div class="leaderboard-header">
+            <h2>Leaderboard</h2>
+            <p id="status-note" class="mono">Ready</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>val_bpb</th>
+                  <th>PR</th>
+                  <th>Status</th>
+                  <th>Author</th>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>Techniques</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
