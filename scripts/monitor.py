@@ -136,6 +136,7 @@ def format_leaderboard(prs, show_all_types=False, since=None, records_only=False
             "category": category,
             "status": status,
             "suspect": suspect,
+            "body": (pr.get("body", "") or "")[:3000],
         })
 
     # Sort: scored entries first (ascending bpb = better), then unscored
@@ -211,9 +212,76 @@ def print_table(entries, highlight_user=None, top_n=None, suspect_count=0):
         print(f"\nYou ({highlight_user}): rank #{user_rank}, val_bpb={user_entry['score']:.5f}, gap to #1: {gap:+.5f}")
 
 
+def extract_techniques(body):
+    """Extract technique keywords from PR body."""
+    if not body:
+        return []
+    lower = body.lower()
+    techniques = []
+    checks = [
+        ("XSA", ["xsa", "exclusive self attention"]),
+        ("EMA", ["ema", "exponential moving average"]),
+        ("SWA", ["swa", "stochastic weight averaging"]),
+        ("TTT", ["ttt", "test-time train", "test time train"]),
+        ("BigramHash", ["bigram", "bigram_hash"]),
+        ("SmearGate", ["smeargate", "smear_gate"]),
+        ("Late QAT", ["late qat", "late_qat"]),
+        ("Partial RoPE", ["partial rope", "rope_dims", "rope_frac"]),
+        ("LN Scale", ["ln scale", "ln_scale", "layer_scale"]),
+        ("Value Residual", ["value residual", "v_first"]),
+        ("Mix-LN", ["mix-ln", "post-ln", "hybrid.*norm"]),
+        ("MTP", ["mtp", "multi-token predict"]),
+        ("GPTQ", ["gptq"]),
+        ("Gradient-Guided Quant", ["gradient.*quant", "gradient-guided"]),
+        ("Backout Connection", ["backout"]),
+        ("12 Layers", ["12.*layer", "num_layers.*12"]),
+        ("FA3", ["fa3", "flash.*attention.*3", "cudnn.*sdp"]),
+        ("Batch 524K+", ["524288", "524k", "786432", "786k"]),
+        ("Shared VE128", ["shared.*ve", "ve128"]),
+    ]
+    for name, patterns in checks:
+        for p in patterns:
+            if re.search(p, lower):
+                techniques.append(name)
+                break
+    return techniques
+
+
+def print_details(entries, top_n=None):
+    """Print entries with technique details from PR body."""
+    count = 0
+    for e in entries:
+        if e["score"] is None:
+            continue
+        if top_n and count >= top_n:
+            break
+        count += 1
+        techs = extract_techniques(e.get("body", ""))
+        tech_str = ", ".join(techs) if techs else "unknown"
+        print(f"\n#{e['number']} | {e['score']:.5f} | {e['author']} | {e['date']}")
+        print(f"  Title: {e['title']}")
+        print(f"  Techniques: {tech_str}")
+        body = e.get("body", "")
+        if body:
+            # Show first 500 chars of body
+            preview = body[:500].replace("\n", "\n  ")
+            print(f"  Body: {preview}")
+            if len(body) > 500:
+                print(f"  ... ({len(body) - 500} more chars)")
+
+
+def fetch_single_pr(pr_number):
+    """Fetch a single PR with full body."""
+    url = f"{API_BASE}/pulls/{pr_number}"
+    req = urllib.request.Request(url, headers={"User-Agent": "parameter-golf-monitor"})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        return json.loads(resp.read())
+
+
 def print_json(entries):
-    """Print entries as JSON."""
-    print(json.dumps(entries, indent=2))
+    """Print entries as JSON (body excluded for size)."""
+    clean = [{k: v for k, v in e.items() if k != "body"} for e in entries]
+    print(json.dumps(clean, indent=2))
 
 
 def run_once(args):
@@ -241,6 +309,10 @@ def run_once(args):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if args.json:
         print_json(entries)
+    elif args.details:
+        mode = "open+merged" if args.all else ("merged" if args.merged else "open")
+        print(f"[{timestamp}] Parameter Golf Details ({mode} PRs)")
+        print_details(entries, top_n=args.top)
     else:
         mode = "open+merged" if args.all else ("merged" if args.merged else "open")
         print(f"[{timestamp}] Parameter Golf Leaderboard ({mode} PRs)")
@@ -264,7 +336,21 @@ def main():
                         help="Include suspect submissions (val-only, paid prefix, or score below threshold)")
     parser.add_argument("--suspect-threshold", type=float, default=SUSPECT_SCORE_THRESHOLD, metavar="BPB",
                         help=f"Score below this is flagged as suspect (default: {SUSPECT_SCORE_THRESHOLD})")
+    parser.add_argument("--details", action="store_true",
+                        help="Show technique details extracted from PR bodies")
+    parser.add_argument("--pr", type=int, metavar="NUM",
+                        help="Fetch and display a single PR's full details")
     args = parser.parse_args()
+
+    if args.pr:
+        pr = fetch_single_pr(args.pr)
+        score = extract_score(pr)
+        techs = extract_techniques(pr.get("body", "") or "")
+        print(f"PR #{args.pr} | {score or '?'} | {pr['user']['login']} | {pr['state']}")
+        print(f"Title: {pr['title']}")
+        print(f"Techniques: {', '.join(techs) if techs else 'unknown'}")
+        print(f"\n{pr.get('body', 'No body') or 'No body'}")
+        sys.exit(0)
 
     if args.watch:
         print(f"Watching Parameter Golf PRs every {args.watch} minutes (Ctrl+C to stop)\n")
